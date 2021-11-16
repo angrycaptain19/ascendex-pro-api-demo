@@ -31,8 +31,7 @@ def sign(msg, secret):
     msg = bytearray(msg.encode("utf-8"))
     hmac_key = base64.b64decode(secret)
     signature = hmac.new(hmac_key, msg, hashlib.sha256)
-    signature_b64 = base64.b64encode(signature.digest()).decode("utf-8")
-    return signature_b64
+    return base64.b64encode(signature.digest()).decode("utf-8")
 
 
 def make_auth_headers(timestamp, path, apikey, secret):
@@ -43,22 +42,19 @@ def make_auth_headers(timestamp, path, apikey, secret):
         timestamp = str(timestamp)
 
     msg = f"{timestamp}+{path}"
-    
-    header = {
+
+    return {
         "x-auth-key": apikey,
         "x-auth-signature": sign(msg, secret),
         "x-auth-timestamp": timestamp,
     }
 
-    return header
-
 
 def parse_response(res):
     if res is None:
-        return None 
+        return None
     elif res.status_code == 200:
-        obj = json.loads(res.text)
-        return obj
+        return json.loads(res.text)
     else:
         print(f"request failed, error code = {res.status_code}")
         print(res.text)
